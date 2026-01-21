@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WebSocket Chat (Broadcast)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; max-width: 800px; }
+    #status { padding: 8px 10px; border-radius: 6px; display: inline-block; }
+    .ok { background: #e6ffed; border: 1px solid #b7f5c6; }
+    .bad { background: #ffecec; border: 1px solid #f5b7b7; }
+    #log { margin-top: 14px; padding: 12px; border: 1px solid #ddd; height: 360px; overflow: auto; white-space: pre-wrap; }
+    .row { display: flex; gap: 8px; margin-top: 12px; }
+    input { flex: 1; padding: 10px; }
+    button { padding: 10px 14px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>WebSocket Broadcast</h2>
+
+  <div id="status" class="bad">Desconectado</div>
+
+  <div class="row">
+    <input id="wsUrl" value="ws://localhost:8000/ws" />
+    <button id="connectBtn">Conectar</button>
+    <button id="disconnectBtn">Desconectar</button>
+  </div>
+
+  <div class="row">
+    <input id="message" placeholder="Digite uma mensagem..." />
+    <button id="sendBtn">Enviar</button>
+  </div>
+
+  <div id="log"></div>
+
+  <script>
+    let socket = null;
+
+    const statusEl = document.getElementById("status");
+    const logEl = document.getElementById("log");
+    const wsUrlEl = document.getElementById("wsUrl");
+    const msgEl = document.getElementById("message");
+
+    function log(line) {
+      logEl.textContent += line + "\n";
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function setStatus(ok, text) {
+      statusEl.className = ok ? "ok" : "bad";
+      statusEl.textContent = text;
+    }
+
+    function connect() {
+      const url = wsUrlEl.value.trim();
+      if (!url) return;
+
+      socket = new WebSocket(url);
+
+      socket.onopen = () => {
+        setStatus(true, "Conectado");
+        log("[client] conectado");
+      };
+
+      socket.onmessage = (event) => {
+        log(event.data);
+      };
+
+      socket.onclose = () => {
+        setStatus(false, "Desconectado");
+        log("[client] desconectado");
+        socket = null;
+      };
+
+      socket.onerror = () => {
+        setStatus(false, "Erro de conexão");
+        log("[client] erro");
+      };
+    }
+
+    function disconnect() {
+      if (socket) socket.close();
+    }
+
+    function send() {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        log("[client] não conectado");
+        return;
+      }
+      const text = msgEl.value.trim();
+      if (!text) return;
+      socket.send(text);
+      msgEl.value = "";
+      msgEl.focus();
+    }
+
+    document.getElementById("connectBtn").onclick = connect;
+    document.getElementById("disconnectBtn").onclick = disconnect;
+    document.getElementById("sendBtn").onclick = send;
+
+    msgEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") send();
+    });
+  </script>
+</body>
+</html>

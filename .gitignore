@@ -1,0 +1,43 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ===== Virtualenv =====
+.venv/
+venv/
+env/
+
+# ===== Logs =====
+*.log
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== IDEs / Editors =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== Coverage / Tests =====
+.coverage
+htmlcov/
+
+# ===== Build / Cache =====
+build/
+dist/
+*.egg-info/
+
+# ===== Node (se futuramente usar tooling no frontend) =====
+node_modules/
+
+# ===== Environment variables =====
+.env
+.env.*
+
+# ===== Frontend (opcional) =====
+# Descomente se gerar build estático futuramente
+# frontend/dist/
